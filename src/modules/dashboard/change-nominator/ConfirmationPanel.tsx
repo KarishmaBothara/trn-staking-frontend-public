@@ -1,0 +1,109 @@
+import { useCallback } from 'react';
+
+import { Box, Stack } from '@mui/material';
+
+import { useDeposit } from '../../shared/providers/DepositProvider';
+import { Button, Typography } from '@futureverse/component-library';
+import DrawerContent from 'components/Layout/DrawerContent';
+import ExtrinsicData from 'modules/shared/components/ExtrinsicData';
+import { useRootTransaction } from 'providers/RootTransactionProvider';
+import { ChangeNominationStage } from '../type';
+import { useFuturePassAccountAddress } from 'hooks/useFuturePassAccountAddress';
+
+interface IProps {
+  onFinish: () => void;
+}
+
+const ConfirmationPanel = ({ onFinish }: IProps) => {
+  const { setChangeNominationStage, selectedValidators, gasToken, isGasSufficient } = useDeposit();
+  const { encodedMessage } = useRootTransaction();
+  const { data: futurePassAddress } = useFuturePassAccountAddress();
+  const { handleNominate, handleChill, gasFee, convertGasFeeToString } = useRootTransaction();
+
+  const handleConfirm = useCallback(
+    async (e: { target: { value: string } }) => {
+      if (selectedValidators.length <= 0) {
+        await handleChill();
+      } else {
+        await handleNominate(selectedValidators);
+      }
+      onFinish();
+    },
+    [handleChill, handleNominate, onFinish, selectedValidators]
+  );
+
+  return (
+    <>
+      <DrawerContent
+        buttonsBar={
+          <Box display="flex" flexDirection="row" justifyContent="flex-end" gap={1} width="400px">
+            <Button
+              variant="text"
+              onClick={() => setChangeNominationStage(ChangeNominationStage.NOMINATION)}
+            >
+              Back
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleConfirm}
+              disabled={!encodedMessage || !isGasSufficient || gasFee === null}
+            >
+              Continue
+            </Button>
+          </Box>
+        }
+      >
+        <Box
+          display="flex"
+          flexDirection="column"
+          gap={2}
+          width={{ xs: '100%', lg: '50%' }}
+          sx={{ marginBottom: '32px' }}
+        >
+          <Typography
+            variant="h5"
+            color="text.primary"
+            fontWeight={700}
+            sx={{ maxWidth: 418, mt: 2 }}
+          >
+            Before proceeding please confirm that the following details are correct
+          </Typography>
+        </Box>
+        <Stack spacing={4} sx={{ marginBottom: '48px' }}>
+          <Stack spacing={2}>
+            <Typography variant="body1" color="text.primary" fontWeight={700}>
+              Caller
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {futurePassAddress}
+            </Typography>
+          </Stack>
+          <Stack spacing={2}>
+            <Typography variant="body1" color="text.primary" fontWeight={700}>
+              This message will be encoded into
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ overflowX: 'auto' }}>
+              {encodedMessage?.encodedMessage}
+            </Typography>
+          </Stack>
+          <Stack spacing={2}>
+            <Typography variant="body1" color="text.primary" fontWeight={700}>
+              Estimated gas fee
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ overflowX: 'auto' }}>
+              {convertGasFeeToString}
+            </Typography>
+            {!isGasSufficient && (
+              <Typography variant="body1" color="error">
+                You do not have enough {gasToken?.symbol || 'XRP'} to cover gas fee
+              </Typography>
+            )}
+          </Stack>
+        </Stack>
+        <ExtrinsicData />
+      </DrawerContent>
+    </>
+  );
+};
+
+export default ConfirmationPanel;

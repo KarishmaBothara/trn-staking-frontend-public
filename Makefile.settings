@@ -1,0 +1,48 @@
+# Set shell
+.SILENT:
+.ONESHELL:
+SHELL=/bin/bash
+
+# Cosmetics
+YELLOW := "\e[1;33m"
+NC := "\e[0m"
+INFO := @bash -c 'printf $(YELLOW); echo "=> $$1"; printf $(NC)' MESSAGE
+
+# Enable docker-compose buildkit
+export COMPOSE_BUILDKIT ?= COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1
+
+# Set up app env
+export APP_VERSION ?= $(shell git rev-parse --short HEAD)
+export APP_NAME ?= staking-dashboard
+
+# Set up env S3 bucket
+export S3_BUCKET_ENV ?= staking-dashboard-env
+
+# Expression to login to Docker registry
+export REGION ?= ap-southeast-2
+export ACCOUNT_ID ?= 614088866336
+export DOCKER_REGISTRY ?= ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com
+DOCKER_LOGIN_EXPRESSION := aws ecr get-login-password --region $(REGION) | docker login --username AWS --password-stdin $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com
+
+# Expression to login to DockerHub
+
+# Using free Docker Hub account to double rate limit quota
+# This is a temporary fix, later drop it in favour of our own base images pulled from ECR
+# Clear text credentials here belong to a new account created for this specific purpose and there is
+# a little risk in leaking them as the most damage could be done to us is someone using up our quota
+export DOCKERHUB_USERNAME ?= tinplayers
+export DOCKERHUB_TOKEN ?= 4798690d-4fd2-4799-b80f-395a3ffb5379
+DOCKERHUB_LOGIN_EXPRESSION := echo $(DOCKERHUB_TOKEN) | docker login --username $(DOCKERHUB_USERNAME) --password-stdin
+
+# Assume rule expression
+define assume_role
+  export AWS_DEFAULT_REGION=$$(aws configure get region)
+  eval $$(aws sts assume-role --role-arn=$$(aws configure get role_arn) \
+  	--role-session-name=$$(aws configure get role_session_name) \
+  	--query "Credentials.[[join('=',['export AWS_ACCESS_KEY_ID',AccessKeyId])],[join('=',['export AWS_SECRET_ACCESS_KEY',SecretAccessKey])],[join('=',['export AWS_SESSION_TOKEN',SessionToken])]]" \
+  	--output text)
+endef
+
+# Do not interpret arguments as targets
+%:
+	@:

@@ -1,0 +1,10 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="FV score">
+<mask id="mask0_119_1308" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+<rect id="Bounding box" width="24" height="24" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask0_119_1308)">
+<path id="auto_awesome" d="M18 8.19232L17.1346 6.25L15.1923 5.38463L17.1346 4.51923L18 2.57692L18.8654 4.51923L20.8077 5.38463L18.8654 6.25L18 8.19232ZM18 21.4231L17.1346 19.4808L15.1923 18.6154L17.1346 17.75L18 15.8077L18.8654 17.75L20.8077 18.6154L18.8654 19.4808L18 21.4231ZM8.76925 17.5769L7.03847 13.7308L3.19232 12L7.03847 10.2692L8.76925 6.42305L10.5 10.2692L14.3462 12L10.5 13.7308L8.76925 17.5769ZM8.76925 15.15L9.76925 13L11.9192 12L9.76925 11L8.76925 8.85L7.76925 11L5.61925 12L7.76925 13L8.76925 15.15Z" fill="currentColor"/>
+</g>
+</g>
+</svg>

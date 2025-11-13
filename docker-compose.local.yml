@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  staking-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: staking-dashboard
+    image: futureverse-staking-dashboard:local
+    user: "node"
+
+    container_name: futureverse-staking-dashboard
+    working_dir: /app
+    ports:
+      - "4204:3000"
+    env_file:
+      - .env
+    # links: 
+    #     - mongodb
+    #     - redis
+
+  # mongodb:
+  #   image: mongo:latest
+  #   container_name: mongodb
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - ./data/mongodb:/data/db
+
+  # redis:
+  #   image: redis/redis-stack:latest
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - ./data/redis:/data
